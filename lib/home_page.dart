@@ -239,16 +239,3 @@ class _HomePageState extends State<HomePage> {
 }
 
 
-// class Tinify{
-//   final String apiKey = '';
-//   final String apiUrl = 'https://api.tinify.com/shrink';
-//   String compressedImageUrl = '';
-
-//   Future<void> compressImage() async {
-//     final response = await http.post(
-//       Uri.parse('https://api.tinify.com/shrink'),
-//       headers: {'Authorization': 'Basic $apiKey'},
-//       body: {'source': url},
-//     );
-//   }
-// }

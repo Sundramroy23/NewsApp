@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'news.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 
 class SearchPage extends StatefulWidget {
   final ThemeMode themeMode;
+
   const SearchPage({super.key, required this.themeMode});
 
   @override
@@ -11,135 +12,162 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  
-  String selectedSearch = '';
-  List<dynamic> apiResults = [];
-  bool isLoading = false;
-  final List<String> suggestedItems = [
-    "Saif Ali Khan",
-    "Israel",
-    "HMVP",
-    "Bharatiya Janata Party (BJP)",
-    "Election Results 2024",
-    "Copa América",
-    "U.S. Election",
-    "Olympic Games"
-  ];
+  final TextEditingController _searchController = TextEditingController();
+  final NewsService _newsService = NewsService();
+  Future<List<dynamic>>? _searchResultsFuture;
 
-  Future<void> fetchResults(String query) async {
-    setState(() {
-      isLoading = true;
-      apiResults = [];
-    });
-
-    try {
-      final response = await NewsService().getSearchNews(query);
+  void _onSearchChanged(String query) {
+    if (query.isEmpty) {
       setState(() {
-        selectedSearch = query;
-        apiResults = response;
+        _searchResultsFuture = null;
       });
-    } catch (e) {
-      print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error fetching news articles')),
-      );
-    } finally {
-      isLoading = false;
+    } else {
+      setState(() {
+        _searchResultsFuture = _newsService.getSearchNews(query);
+      });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      _onSearchChanged(_searchController.text.trim());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              margin: EdgeInsets.all(10),
-              padding: EdgeInsets.all(10),
-              // constraints: BoxConstraints(maxWidth: 500, minWidth: 100),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: UnderlineInputBorder(),
-                  enabledBorder: UnderlineInputBorder(),
-                  focusedBorder: UnderlineInputBorder(),
-                  focusColor: const Color.fromARGB(255, 96, 96, 97),
-                  hoverColor: const Color.fromARGB(255, 96, 96, 97),
-                  fillColor: const Color.fromARGB(255, 96, 96, 97),
-
-                  hintText: 'Search',
-                  // hintFadeDuration: Duration(seconds: 0.2),
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onSubmitted: (query) => print(query),
+      appBar: AppBar(
+        title: const Text('Search News'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                hintText: 'Search news...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
             ),
-            Expanded(
-              // margin: EdgeInsets.all(10),
-              child: SearchSuggestion(suggestedItems: suggestedItems,themeMode:widget.themeMode ),
-            )
-          ],
-        ),
+          ),
+          Expanded(
+            child: _searchResultsFuture == null
+                ? _buildDefaultSuggestions()
+                : FutureBuilder<List<dynamic>>(
+                    future: _searchResultsFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                          child: Text('No results found.'),
+                        );
+                      }
+                      final articles = snapshot.data!;
+                      return _buildSearchResults(articles);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class SearchSuggestion extends StatelessWidget {
-  final ThemeMode themeMode;
-  late List<String> suggestedItems = [];
-  SearchSuggestion({
-    super.key,
-    required this.suggestedItems,
-    required this.themeMode
-  });
+  Widget _buildDefaultSuggestions() {
+    final defaultSuggestions = [
+      'Latest news',
+      'Trending topics',
+      'Technology',
+      'Sports',
+      'Entertainment',
+    ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text('Top Searches'),
-        Expanded(
-          child: ListView.separated(
-            itemCount: suggestedItems.length,
-            separatorBuilder: (context, index) => Divider(
-              color: Colors.grey,
-              thickness: 0.1,
-            ),
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () => {print("Article $index clicked")},
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  width: double.infinity,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.trending_up,
-                        color: const Color.fromARGB(255, 91, 90, 90),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        suggestedItems[index],
-                        style: TextStyle(fontSize: 16, color: themeMode == ThemeMode.dark ? Colors.white70 : Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+    return ListView.builder(
+      itemCount: defaultSuggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(defaultSuggestions[index]),
+          onTap: () {
+            _searchController.text = defaultSuggestions[index];
+            _onSearchChanged(defaultSuggestions[index]);
+          },
+        );
+      },
     );
   }
-}
 
-class SearchItmes extends StatelessWidget {
-  const SearchItmes({super.key});
+  Widget _buildSearchResults(List<dynamic> articles) {
+    return ListView.builder(
+      itemCount: articles.length,
+      itemBuilder: (context, index) {
+        final article = articles[index];
+        final title = article['title'] ?? 'No Title';
+        final description = article['description'] ?? 'No Description Available';
+        final imageUrl = article['urlToImage'] ?? '';
+        final url = article['url'];
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+        return Card(
+          elevation: 4,
+          margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: ListTile(
+            minTileHeight: 130,
+            leading: SizedBox(
+              width: 100,
+              height: 100,
+              child: imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.broken_image,
+                          size: 100,
+                          color: Colors.grey,
+                        );
+                      },
+                    )
+                  : const Icon(
+                      Icons.image,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
+            ),
+            title: Text(
+              title,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              description,
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () {
+              if (url != null) {
+                launchUrl(Uri.parse(url));
+              }
+            },
+          ),
+        );
+      },
+    );
   }
 }

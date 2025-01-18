@@ -171,31 +171,35 @@ class _HomePageState extends State<HomePage> {
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             child: ListTile(
               contentPadding: const EdgeInsets.all(8),
-              leading: ClipRRect(
-                borderRadius:
-                    BorderRadius.circular(8), // Rounded corners for the image
-                child: Image.network(
-                  imageUrl,
-                  width: 100,
-                  height: 400,
-                  fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child; // Image has fully loaded
-                    }
-                    return const Center(
-                      child:
-                          CircularProgressIndicator(), // Show loading indicator
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.broken_image,
-                      size: 80,
-                      color: Colors
-                          .grey, // Display a dummy icon if the image fails
-                    );
-                  },
+              leading: SizedBox(
+                width: 100,
+                height: 200,
+                child: ClipRRect(
+                  borderRadius:
+                      BorderRadius.circular(8), // Rounded corners for the image
+                  child: Image.network(
+                    imageUrl,
+                    width: 100,
+                    height: 400,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child; // Image has fully loaded
+                      }
+                      return const Center(
+                        child:
+                            CircularProgressIndicator(), // Show loading indicator
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(
+                        Icons.broken_image,
+                        size: 80,
+                        color: Colors
+                            .grey, // Display a dummy icon if the image fails
+                      );
+                    },
+                  ),
                 ),
               ),
               title: Column(

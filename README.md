@@ -48,7 +48,7 @@ Follow these steps to get the app up and running:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Sundramroy23/NewsApp
+   git clone <repository-url>
    cd NewsApp
    ```
 
@@ -79,22 +79,31 @@ Follow these steps to get the app up and running:
 
 ## Screenshots
 
-To include screenshots in your README, follow these steps:
+To showcase the app's interface, we have included screenshots in the `screenshots` folder:
 
-1. Take screenshots of your app on a simulator or physical device.
-2. Save the screenshots in a `screenshots` folder at the root of your project.
-3. Update the README to reference these images:
+## Screenshots
 
-```markdown
 ### Home Page
-![Home Page](screenshots/home_page.png)
+#### Light Mode:
+<img src="screenshots/HomePageLight.jpg" alt="Home Page Light" height='600'/>
+
+#### Dark Mode:
+<img src="screenshots/HomePageDark.jpg" alt="Home Page Dark" height='600'/>
 
 ### Search Page
-![Search Page](screenshots/search_page.png)
+#### Light Mode:
+<img src="screenshots/SearchLight.jpg" alt="Search Page Light" height='600'/>
 
-### Article View
-![Article View](screenshots/article_view.png)
-```
+#### Dark Mode:
+<img src="screenshots/SearchDark.jpg" alt="Search Page Dark" height='600'/>
+
+### Search Results
+#### Light Mode:
+<img src="screenshots/SearchResultLight.jpg" alt="Search Results Light" height='600'/>
+
+#### Dark Mode:
+<img src="screenshots/SearchResultDark.jpg" alt="Search Results Dark" height='600'/>
+
 
 ## Code Snippets
 

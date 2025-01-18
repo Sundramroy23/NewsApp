@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/search_page.dart';
 import 'news.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -55,9 +56,14 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.search),
             onPressed: () {
               // print(_topNewsFuture);
-              _topNewsFuture.then((value) {
-                print(value); // Now you can access the value with an index
-              });
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return SearchPage(themeMode: widget.themeMode,);
+                  },
+                ),
+              );
             },
           ),
           IconButton(
@@ -132,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
               final article = snapshot.data!;
-              return ListViewBuildForNews(article);
+              return listViewBuildForNews(article);
             },
           )
         ],
@@ -140,7 +146,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Expanded ListViewBuildForNews(List<dynamic> article) {
+  Expanded listViewBuildForNews(List<dynamic> article) {
     return Expanded(
       child: ListView.builder(
         itemCount: article.length,

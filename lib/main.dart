@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:news_app/home_page.dart';
 import 'package:news_app/search_page.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -31,8 +30,8 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData.light(useMaterial3: true),
       darkTheme: ThemeData.dark(useMaterial3: true),
       debugShowCheckedModeBanner: false,
-      // home: HomePage(themeMode: _themeMode, toggleTheme: _toggleTheme),
-      home:SearchPage()
+      home: HomePage(themeMode: _themeMode, toggleTheme: _toggleTheme),
+      // home:SearchPage()
     );
   }
 }

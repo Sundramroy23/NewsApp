@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'news.dart';
 
+
 class SearchPage extends StatefulWidget {
-  const SearchPage({super.key});
+  final ThemeMode themeMode;
+  const SearchPage({super.key, required this.themeMode});
 
   @override
   State<SearchPage> createState() => _SearchPageState();
 }
 
 class _SearchPageState extends State<SearchPage> {
+  
   String selectedSearch = '';
   List<dynamic> apiResults = [];
   bool isLoading = false;
-  List<String> suggestedItems = [
+  final List<String> suggestedItems = [
     "Saif Ali Khan",
     "Israel",
     "HMVP",
@@ -73,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             Expanded(
               // margin: EdgeInsets.all(10),
-              child: SearchSuggestion(suggestedItems: suggestedItems),
+              child: SearchSuggestion(suggestedItems: suggestedItems,themeMode:widget.themeMode ),
             )
           ],
         ),
@@ -83,10 +86,12 @@ class _SearchPageState extends State<SearchPage> {
 }
 
 class SearchSuggestion extends StatelessWidget {
+  final ThemeMode themeMode;
   late List<String> suggestedItems = [];
   SearchSuggestion({
     super.key,
     required this.suggestedItems,
+    required this.themeMode
   });
 
   @override
@@ -116,7 +121,7 @@ class SearchSuggestion extends StatelessWidget {
                       SizedBox(width: 10),
                       Text(
                         suggestedItems[index],
-                        style: TextStyle(fontSize: 16, color: Colors.black),
+                        style: TextStyle(fontSize: 16, color: themeMode == ThemeMode.dark ? Colors.white70 : Colors.black),
                       ),
                     ],
                   ),

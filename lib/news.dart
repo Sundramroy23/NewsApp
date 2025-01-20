@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class NewsService{ 
   final String _baseUrl = 'https://newsapi.org/v2/';
-  final String _apiKey = 'f9e7b33a4c35482599a59012aeb7c807';
+  final String _apiKey = '#';
 
   Future<List<dynamic>> getTopNews() async {
     final String url = '${_baseUrl}top-headlines?country=us&apiKey=$_apiKey';
